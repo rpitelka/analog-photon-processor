@@ -1,0 +1,280 @@
+
+##echo "reading .cshrc_cadence_Linux "
+
+# License stuff
+setenv CDS_LIC_FILE 1711@head.hep.upenn.edu
+
+### this file runs newer IC tools: IC613  -ncd
+
+# add path to base linux utilities
+set path=(/bin $path)
+
+# add path to cosmo-scope
+set path=( /cad/meta/W-2004.12/ai_bin $path)
+
+# add path to "wv" waveform vew replacing cscope
+set path=(/cad/meta/D-2010.06/bin/ $path)
+
+# add path to smartspice and smartview -ncd
+set path=( /cad/sedatools/bin  $path  )
+
+# matlab
+set path=( $path /cad/MATLAB/R2014a/bin/.)
+
+
+###***************
+# Penn's VHDL package: including verilog -ncd
+#set path=($path /cad/LDV32/tools/bin )
+# need to load non-standard system library file, 
+# so only load it when required by a particular application 
+# using alias -ncd
+#alias ncsim 'env LD_LIBRARY_PATH=/cad/LDV32/tools.sun4v/lib ncsim'
+
+
+## spectre - need to place this before Encounter EDI path  
+#set path=($path /cad/MMSIM141-lnx/tools/bin)
+#set path=($path /cad/MMSIM141-lnx/tools.lnx86/bin)
+
+
+set path=($path /cad/SPECTRE181-lnx/tools/spectre/bin/)
+
+#set path=($path /cad/MMSIM711-lnx/tools/bin)
+
+
+
+####************
+#*** ncverilog and irun simulators ***
+set path=($path /cad/INCISIVE152-lnx/tools.lnx86/bin )
+#set path=($path /cad/INCISIV92-lnx/IUS92/tools.lnx86/bin )
+
+#*** rtl silicon compiler tools ***
+set path=($path /cad/RC142-lnx/tools.lnx86/bin)
+#set path=($path /cad/RC141-lnx/tools.lnx86/bin)
+#set path=($path /cad/RC910-lnx/tools/bin)
+#set path=($path /cad/RC111-lnx/tools/bin)
+
+
+## *** cadence INNOVUS and GENUS and TEMPUS ***
+#setenv OA_HOME   /cad/IC617-lnx/oa_v22.50.095
+#set path=($path /cad/GENUS161-lnx/bin) 
+#set path=($path /cad/INNOVUS161-lnx/bin)
+#set path=($path /cad/SSV161-lnx/bin)
+
+## CURRENT WORKING SET -ncd 2021
+set path=($path /cad/INNOVUS162-lnx/bin) 
+#set path=($path /cad/INNOVUS201/bin)
+
+#set path=($path /cad/GENUS162-lnx/bin) 
+set path=($path /cad/GENUS191/bin) 
+#set path=($path /cad/SSV172/bin)  ; works
+ set path=($path /cad/SSV201/bin)
+
+
+## Update Tools 2020 November -- dont work 
+# setenv OA_HOME   /cad/INNOVUS201/oa_v22.60.s011
+# set path=($path /cad/INNOVUS201/bin)
+# set path=($path /cad/GENUS191/bin) 
+# set path=($path /cad/SSV201/bin)
+
+
+
+
+
+
+
+#*** Encounter Digital Implementation tools ***
+set path=($path /cad/EDI141-lnx/tools/bin)
+#set path=($path /cad/EDI914-lnx/tools/bin)
+#set path=($path /cad/EDI913-lnx/tools/bin)
+
+
+# Add path for Encoutner Timing System (ets) ***
+set path=($path /cad/ETS131-lnx/tools/bin)
+
+## set this variable to get Voltus running again
+##setenv TMPDIR /tmp/voltus
+
+# Add path for Liberate 
+setenv ALTOSHOME /cad/LIBERATE151-lnx
+#setenv ALTOSHOME /cad/LIBERATE141-lnx
+setenv ALTOS_64 1
+
+# this might trash spectre
+#setenv CDS_AUTO_64BIT 1
+setenv CDS_AUTO_64BIT ALL
+
+#setenv ALTOS_LIC_MAX_TIMEOUT <value>
+#setenv ALTOS_QUEUE 1
+#setenv ALTOS_LIC_CHECK_ALT_TIMEOUT
+
+set path= ($path /cad/LIBERATE151-lnx/bin )
+#set path= ($path /cad/LIBERATE141-lnx/bin )
+##
+
+#*** Add path to Conformal -ncd
+set path=($path /cad/CONFRML141-lnx/tools/bin)
+#set path=($path /cad/CONFRML121-lnx/tools/bin)
+
+###################################################################
+###################################################################
+## ncd 6/2013
+###################################################################
+## set these variable to point to install directories
+setenv CDSHOME   /cad/IC617-lnx 
+#setenv CDSHOME   /cad/IC616-lnx 
+#setenv CDSHOME   /cad/IC615-lnx 
+#setenv CDSHOME    /cad/IC613-lnx
+
+# try to get Encounter working with OA databases as per Paul 7/18/11
+# update -ncd 6/4/2013
+
+
+
+
+## removed so that each tool can us its own OA database version -ncd
+# vvv old setup vvv
+#setenv OA_HOME   /cad/IC616-lnx/oa_v22.43.046
+# vvv new setup vvv
+#setenv OA_HOME   /cad/INNOVUS162-lnx/oa_v22.50.051
+##setenv OA_HOME   /cad/IC617-lnx/oa_v22.50.058
+##setenv OA_HOME   /cad/IC617-lnx/oa_v22.50.095
+
+###setenv OA_HOME   /cad/IC616-lnx/oa_v22.43.018 
+###setenv OA_HOME   /cad/IC615-lnx/oa_v22.41.031 
+###setenv OA_HOME    /cad/ETS91-lnx/oa_v22.04.068
+###setenv OA_HOME    ${CDSHOME}/oa_v22.04.055
+###setenv OA_HOME  /cad/OpenAccess-lnx 
+
+
+
+#setenv LD_LIBRARY_PATH  /cad/IC613-lnx/tools/lib:/cad/EDI913-lnx/tools/lib 
+
+# Physical Verification System (PVS) -ncd
+setenv PVS_HOME /cad/PVS161
+#setenv PVS_HOME /cad/PVS152-lnx
+set path=($path ${PVS_HOME}/bin ${PVS_HOME}/tools/bin  )
+
+## get PVS menu running -ncd 5/1/19
+setenv PVS_AUTOINIT_VIRTUOSO_MENUS
+
+## Calbre 2019
+### set both for now
+setenv MGC_HOME     /cad/Calibre.182524/aoj_cal_2018.2_52.40
+setenv CALIBRE_HOME /cad/Calibre.182524/aoj_cal_2018.2_52.40
+setenv MGLS_LICENSE_FILE 1717@jicama.seas.upenn.edu
+
+
+
+setenv ASSURAHOME  /cad/ASSURA41-617-lnx
+#setenv ASSURAHOME  /cad/ASSURA41-616-lnx
+#setenv ASSURAHOME /cad/ASSURA413-615-lnx
+####setenv ASSURAHOME /cad/ASSURA32-613-lnx
+
+
+
+#setenv QRC_HOME   /cad/EXT132-lnx
+#setenv QRC_HOME   /cad/EXT161-lnx
+setenv QRC_HOME   /cad/EXT171-lnx
+
+
+
+
+
+
+#setenv QRC_HOME   /cad/EXT141-lnx
+#setenv QRC_HOME   /cad/EXT81-lnx
+##
+set path=($path ${CDSHOME}/tools/bin ${CDSHOME}/tools/dfII/bin )
+#set path=($path /cad/MMSIM62/tools)
+set path=($path ${QRC_HOME}/tools/bin  ${ASSURAHOME}/bin)
+set path=($path  ${ASSURAHOME}/tools/assura/bin ${ASSURAHOME}/tools/bin)
+
+set path=($path  ${CALIBRE_HOME}/bin)
+
+
+# Required for IBM cmrf8sf kit
+setenv SPECTRE_DEFAULTS     -E
+setenv CDS_LOAD_ENV         CWDElseHome
+setenv CDS  ${CDSHOME}
+
+
+## source setup file for IBM_PDK process
+##echo "     sourcing ~cds_proto/setup.csh "
+source /home/u2/cds_proto/setup.csh
+
+## Fireup AMS mixed signal simulator connectors -ncd
+setenv AMSHOME /cad/INCISIV141-lnx
+#setenv AMSHOME /cad/INCISIV92-lnx/IUS92
+##setenv AMSHOME /cad/IC615-lnx/
+
+
+### setup AMS SiGe process *** ncd
+setenv CDSDIR $CDSHOME
+setenv AMS_DIR /cad/Technology/AMS/ams_v3.70
+set path =($path $AMS_DIR/artist/bin)
+
+
+# set up analog artist netlisting mode 
+setenv CDS_Netlisting_Mode Analog
+
+# Required for smartIs
+#setenv DKS_KITPATH /cad/Technology/smartIs/v3.2
+#setenv DKS_PLATFORM sparc-sun-solaris2.5.1
+#setenv DKS_COMMONPATH /cad/Technology/smartIs/v3.2/common
+#setenv CDS_WORKAREA /tape/mitch_sim/nandor/smartIs
+#setenv CDS_LAYER_POOL_SIZE 64
+## attempt to fix spectre bsources
+setenv CDS_AHDLCMI_ENABLE NO
+
+# smartIs: older kit 
+#setenv DKS_KITPATH /tape/mitch_sim/nandor/smartIs311/v3.1.1
+#setenv DKS_PLATFORM sparc-sun-solaris2.5.1
+#setenv DKS_COMMONPATH /tape/mitch_sim/nandor/smartIs311/v3.1.1/common
+#setenv CDS_WORKAREA /tape/mitch_sim/nandor/smartIs311
+
+
+# setup IHP OA process  -ncd 1/20/2011 
+setenv IHP_TECH /cad/Technology/SG25H3PLBE_OA_rev1.3.3_ad
+#setenv IHP_TECH /cad/Technology/SG25H3PLBE_OA_rev1.2.0_ad
+
+# PROJECT seems to point to working directory -ncd 
+#setenv PROJECT /tape/mitch_sim/cds_proto/IHP_OA2
+#setenv PROJECTDATA /tape/mitch_sim/cds_proto/IHP_OA2
+setenv PROJECT /tape/mitch_sim/cds_proto/IHP_2011
+setenv PROJECTDATA /tape/mitch_sim/cds_proto/IHP_2011
+
+# moved onto jpsi to speed things up -ncd
+#setenv PROJECT /IHP_20110919/IHP_OA2
+#setenv PROJECTDATA /IHP_20110919/IHP_OA2
+
+
+
+## PCB BOARD TOOLS 2018
+set INSTDIR = /cad/SPB172-lnx
+set path = ($path /tape/cad/SPB172-lnx/tools/bin)
+### Signal integrity tools 2018
+#set path = ($path /tape/cad/SIGRITY2017-lnx/tools.lnx86/bin)
+set cdsplat = lnx86
+#
+
+
+## removed 2020 -ncd
+#if ($?LD_LIBRARY_PATH) then
+#    setenv LD_LIBRARY_PATH ${INSTDIR}/tools.${cdsplat}/lib/64bit:$LD_LIBRARY_PATH
+#else
+#    setenv LD_LIBRARY_PATH ${INSTDIR}/tools.${cdsplat}/lib/64bit
+#endif
+##
+
+
+set SIGRITY_EDA_DIR = $INSTDIR/../Sigrity2018
+#set SIGRITYPATH = $SIGRITY_EDA_DIR/tools/bin
+setenv SIGRITY_EDA_DIR ${SIGRITY_EDA_DIR}
+#
+unset INSTDIR
+unset cdsplat
+unset SIGRITY_EDA_DIR
+#unset SIGRITYPATH
+
+#set INSTDIR = /tape/cad/SIGRITY2018
+set path = ($path /tape/cad/SIGRITY2018/tools/bin)
