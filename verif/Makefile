@@ -7,5 +7,6 @@ VERILOG_SOURCES+=   ../fpga/src/top.v \
 TOPLEVEL = tb
 TOPLEVEL_LANG ?= verilog
 MODULE = tb_cocotb
+GUI=1
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
