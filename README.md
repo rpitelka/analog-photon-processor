@@ -33,6 +33,3 @@ Setup assumes you are running Vivado 2022.2 in a Linux environment
 
 ## Notes
 
-## TODO:
-1. Get python virgual environment running, for later versions of cocotb
-* 
