@@ -16,7 +16,7 @@ Digital core design for APP ASIC. FPGA code for test PCB.
 |      |      |
 | :--- | :--- |
 | fpga/constr/ | Vivado pin constraints |
-| fpga/sim/ | Top level Verilog testbenche, cocotb unit testbenches |
+| fpga/sim/ | Top level Verilog testbenches, cocotb unit testbenches |
 | fpga/src/ | Verilog source files for FPGA |
 | asic/syn/ | Synthesis scripts |
 | asic/verif/ | Unit level cocotb testbenches |
@@ -25,10 +25,13 @@ Digital core design for APP ASIC. FPGA code for test PCB.
 
 ### Setup (ASIC)
 Setup assumes you are running on lxhiggs (CentOS7) which is required for the ASIC tools to run. Because of this, we are limited to python v2.7.5, which limits us to cocotb v1.3.1.
-
+#### Environment
 1. ~~`source .cshrc_Cadence_Linux` to set up the Cadence ASIC tool environment.~~
-2. `source .min_231-env.csh` to set up the Cadence ASIC tool environment.
-3. From the verif/ directory, `./run.sh`.  This will start cocotb, and bring up the Incisive tool (NCSim simulation, and SimVision GUI waveform viewer). 
+   `source .min_231-env.csh` to set up the Cadence ASIC tool environment.
+#### Simulation
+1. From the verif/ directory, `./run.sh`.  This will start cocotb, and bring up the Incisive tool (NCSim simulation, and SimVision GUI waveform viewer). 
+#### Synthesis
+1. From the asic/syn directory, `./run_syn.sh`. This will create an output directory with the synthesized Verilog and timing files.
 
 ### Setup (FPGA)
 
