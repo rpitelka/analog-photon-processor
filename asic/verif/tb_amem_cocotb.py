@@ -16,32 +16,32 @@ async def test_amem_basic(tb_amem):
     Tests reset behavior and TOT pulses with different metadata values.
     """
     # Initial setup
-    tb_amem.amem_core_tb.TOT = 0
-    tb_amem.amem_core_tb.resetb_full = 0
-    tb_amem.amem_core_tb.metadata = 0x00
+    tb_amem.amem_core_tb.TOT.value = 0
+    tb_amem.amem_core_tb.resetb_full.value = 0
+    tb_amem.amem_core_tb.metadata.value = 0x00
     
     # Wait after initial setup
     await Timer(100, 'ns')
     
     # Reset pulse
-    tb_amem.amem_core_tb.resetb_full = 1
+    tb_amem.amem_core_tb.resetb_full.value = 1
     await Timer(50, 'ns')
-    tb_amem.amem_core_tb.resetb_full = 0
+    tb_amem.amem_core_tb.resetb_full.value = 0
     await Timer(100, 'ns')
 
     # Single TOT pulse test
-    tb_amem.amem_core_tb.metadata = 0x87
-    tb_amem.amem_core_tb.TOT = 1
+    tb_amem.amem_core_tb.metadata.value = 0x87
+    tb_amem.amem_core_tb.TOT.value = 1
     await Timer(10, 'ns')
-    tb_amem.amem_core_tb.TOT = 0
+    tb_amem.amem_core_tb.TOT.value = 0
     await Timer(200, 'ns')
 
     # Multiple TOT pulses test
     for i in range(8):
-        tb_amem.amem_core_tb.TOT = 1
+        tb_amem.amem_core_tb.TOT.value = 1
         await Timer(10, 'ns')
-        tb_amem.amem_core_tb.TOT = 0
+        tb_amem.amem_core_tb.TOT.value = 0
         await Timer(10, 'ns')
-        tb_amem.amem_core_tb.metadata = 0xff
-    
+        tb_amem.amem_core_tb.metadata.value = 0xff
+
     await Timer(200, 'ns')
