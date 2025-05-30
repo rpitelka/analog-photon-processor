@@ -87,7 +87,7 @@ async def load_pulse(APP_tb, csv_path, column):
 @cocotb.test(skip=(dont_run_all and not env1("APP_T02")))
 async def test_behav_csv(APP_tb):
     """
-    Test behavioral model by sequentially playing SinglePE, DoublePE, MultiPE, and Ringing pulses from CSV.
+    Test behavioral model by sequentially playing pulses from CSV.
     """
     csv_path = os.path.join(os.path.dirname(__file__), '../../waveforms/eos_wbls_thorium_tot.csv')
 

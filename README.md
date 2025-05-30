@@ -32,6 +32,10 @@ Setup assumes you are running on lxhiggs (CentOS7) which is required for the ASI
    `source .min_231-env.csh` to set up the Cadence ASIC tool environment.
 #### Simulation
 1. From the verif/ directory, `./run_venv.sh`.  This will start cocotb in the virtual environment, and bring up the Incisive tool (NCSim simulation, and SimVision GUI waveform viewer). 
+2. For asic simulation: from the asic/verif directory, `./run.sh`. This will start cocotb in a virtual environment. To run with gui, `env GUI=1 ./run.sh`. By default, skips all tests; `env RUN_ALL=1 ./run.sh` to run all tests or `env APP_TXX=1 ./run.sh` to run a specific test. Current tests:
+* `APP_T01` Basic demonstration for analog behavorial model
+* `APP_T02` Load pulses from CSV into analog behavorial model
+* `APP_T03` Basic test for analog memory core
 #### Synthesis
 1. From the asic/syn directory, `./run_syn.sh`. This will create an output directory with the synthesized Verilog and timing files.
 
