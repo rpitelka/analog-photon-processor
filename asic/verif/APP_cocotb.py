@@ -16,6 +16,7 @@ def env1(envvarname, checkval="1"):
     return value == checkval
 
 dont_run_all = not (os.environ.get("RUN_ALL", "") == "1")
+timeout_threshold = 5
 
 @cocotb.test(skip=(dont_run_all and not env1("APP_T01")))
 async def test_behav_basic(APP_tb):
@@ -26,7 +27,9 @@ async def test_behav_basic(APP_tb):
     # Initial setup
     APP_tb.app_1ch_tb.vcomp.value = 0
     APP_tb.app_1ch_tb.rst_init.value = 0
-    
+    APP_tb.app_1ch_tb.timeout_enable.value = 1
+    APP_tb.app_1ch_tb.timeout_threshold.value = timeout_threshold
+
     # Wait after initial setup
     await Timer(110, 'ns')
     
@@ -94,6 +97,8 @@ async def test_behav_csv(APP_tb):
     # Initial setup
     APP_tb.app_1ch_tb.vcomp.value = 0
     APP_tb.app_1ch_tb.rst_init.value = 0
+    APP_tb.app_1ch_tb.timeout_enable.value = 1
+    APP_tb.app_1ch_tb.timeout_threshold.value = timeout_threshold
     
     # Wait after initial setup
     await Timer(110, 'ns')
