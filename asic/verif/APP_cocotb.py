@@ -26,7 +26,9 @@ async def test_behav_basic(APP_tb):
     # Initial setup
     APP_tb.app_1ch_tb.vcomp.value = 0
     APP_tb.app_1ch_tb.rst_init.value = 0
-    
+    APP_tb.app_1ch_tb.timeout_enable.value = 1
+    APP_tb.app_1ch_tb.timeout_threshold.value = 5
+
     # Wait after initial setup
     await Timer(110, 'ns')
     
@@ -94,6 +96,8 @@ async def test_behav_csv(APP_tb):
     # Initial setup
     APP_tb.app_1ch_tb.vcomp.value = 0
     APP_tb.app_1ch_tb.rst_init.value = 0
+    APP_tb.app_1ch_tb.timeout_enable.value = 1
+    APP_tb.app_1ch_tb.timeout_threshold.value = 5
     
     # Wait after initial setup
     await Timer(110, 'ns')

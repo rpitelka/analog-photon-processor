@@ -4,7 +4,9 @@ SIM ?= ius
 VERILOG_SOURCES+=   ../verilog/amem_core.v \
             ../verilog/app_1ch_behav.v \
             ../verilog/clock_div.v \
+            ../verilog/counter.v \
             ../verilog/oneshot.v \
+            ../verilog/oneshot_mod.v \
 		    APP_tb.v
 
 TOPLEVEL = APP_tb

@@ -21,9 +21,10 @@ module app_1ch_behav(
 	output reg [3:0] sampleP,
 	output wire [7:0] VP_front,
 	output wire [7:0] VP_back,
-	output reg [3:0] count,
+	output wire [3:0] count,
 	// ignore DAC and alignment for now
-    input wire timeout
+    input wire timeout_enable,
+    input wire [3:0] timeout_threshold
 );
 
 	// internal registers
@@ -31,8 +32,14 @@ module app_1ch_behav(
     reg [5:0] next_state;
     reg [7:0] VP_fr_trig;
     reg [7:0] VP_bk_trig;
+    reg count_up;
+    reg count_reset;
+    reg timeout_trig;
+    reg timeout_reset;
     
     // internal connections
+    wire [3:0] timeout_count;
+    wire timeout_pulse;
     wire clk_half;
 	
     // states
@@ -67,7 +74,7 @@ module app_1ch_behav(
     // TODO: add ~15ns or randomized delays to TOT input
 
     // async state machine driven by TOT edges and programmable timeout
-    always @ (posedge vcomp, negedge vcomp, posedge timeout, posedge rst_init)
+    always @ (posedge vcomp, negedge vcomp, posedge timeout_pulse, negedge timeout_pulse, posedge rst_init)
     begin
         if (rst_init)
         begin
@@ -77,6 +84,34 @@ module app_1ch_behav(
         else
             curr_state <= next_state;
     end
+
+    counter event_counter(
+        .rst_init(rst_init),
+        .count_up(count_up),
+        .count_reset(count_reset),
+        .count(count)
+    );
+
+    counter timeout_counter(
+        .rst_init(rst_init),
+        .count_up(clk),
+        .count_reset(timeout_reset),
+        .count(timeout_count)
+    );
+
+    always @ (*)
+    begin
+        if (timeout_enable && timeout_count >= timeout_threshold)
+            timeout_pulse = 1'b1;
+        else
+            timeout_pulse = 1'b0;
+    end
+
+    //oneshot timeout_pulse_gen(
+    //    .pulse_out(timeout_pulse),
+    //    .trigger_in(timeout_trig),
+    //    .clk(clk)
+    //);
 
     // "fake" TAC signals
     // TODO: extend to always 0.5--1.5 + 2 clk 
@@ -91,7 +126,7 @@ module app_1ch_behav(
     generate
         for (i = 0; i < 8; i = i + 1)
         begin
-            oneshot osf(
+            oneshot_mod osf(
                 .clk(clk),
                 .trigger_in(VP_fr_trig[i]),
                 .pulse_out(VP_front[i])
@@ -102,7 +137,7 @@ module app_1ch_behav(
     generate
         for (j = 0; j < 8; j = j + 1)
         begin
-            oneshot osb(
+            oneshot_mod osb(
                 .clk(clk),
                 .trigger_in(VP_bk_trig[j]),
                 .pulse_out(VP_back[j])
@@ -125,8 +160,21 @@ module app_1ch_behav(
                     sampleP = 4'b0000;
                     VP_fr_trig = 8'b00000001; // TAC for rising edge
                     VP_bk_trig = 8'b00000000;
-                    count = 4'h1;
+                    count_up = 1'b1; // increment count
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PING1A;
+                end
+                else if (timeout_pulse) // timeout
+                begin
+                    sample =  4'b0001;
+                    sampleP = 4'b0000;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0; // do not increment count
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO1;
                 end
             end
             PING1A: 
@@ -135,9 +183,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0001;
                     sampleP = 4'b0000;
-                    VP_fr_trig = 8'b00000001;
+                    VP_fr_trig = 8'b00000000;
                     VP_bk_trig = 8'b00000001; // TAC for falling edge
-                    count = 4'h1;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
+                    next_state = PONG2;
+                end
+            end
+            TO1: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b0001;
+                    sampleP = 4'b0000;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
                     next_state = PONG2;
                 end
             end
@@ -147,10 +211,23 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0001;
                     sampleP = 4'b0001;
-                    VP_fr_trig = 8'b00000011;
-                    VP_bk_trig = 8'b00000001;
-                    count = 4'h2;
+                    VP_fr_trig = 8'b00000010;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b1;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PONG2A;
+                end
+                else if (timeout_pulse)
+                begin
+                    sample =  4'b0001;
+                    sampleP = 4'b0001;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO2;
                 end
             end   
             PONG2A: 
@@ -159,9 +236,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0000;
                     sampleP = 4'b0001;
-                    VP_fr_trig = 8'b00000011;
-                    VP_bk_trig = 8'b00000011;
-                    count = 4'h2;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000010;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
+                    next_state = PING3;
+                end
+            end
+            TO2: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b0000;
+                    sampleP = 4'b0001;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
                     next_state = PING3;
                 end
             end
@@ -171,10 +264,23 @@ module app_1ch_behav(
                 begin
                     sample = 4'b0010;
                     sampleP = 4'b0001;
-                    VP_fr_trig = 8'b00000111;
-                    VP_bk_trig = 8'b00000011;
-                    count = 4'h3;
+                    VP_fr_trig = 8'b00000100;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b1;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PING3A;
+                end
+                else if (timeout_pulse)
+                begin
+                    sample =  4'b0010;
+                    sampleP = 4'b0001;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO3;
                 end
             end
             PING3A: 
@@ -183,9 +289,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0010;
                     sampleP = 4'b0000;
-                    VP_fr_trig = 8'b00000111;
-                    VP_bk_trig = 8'b00000111;
-                    count = 4'h3;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000100;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
+                    next_state = PONG4;
+                end
+            end
+            TO3: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b0010;
+                    sampleP = 4'b0000;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
                     next_state = PONG4;
                 end
             end
@@ -195,10 +317,23 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0010;
                     sampleP = 4'b0010;
-                    VP_fr_trig = 8'b00001111;
-                    VP_bk_trig = 8'b00000111;
-                    count = 4'h4;
+                    VP_fr_trig = 8'b00001000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b1;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PONG4A;
+                end
+                else if (timeout_pulse)
+                begin
+                    sample =  4'b0010;
+                    sampleP = 4'b0010;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO4;
                 end
             end
             PONG4A: 
@@ -207,9 +342,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0000;
                     sampleP = 4'b0010;
-                    VP_fr_trig = 8'b00001111;
-                    VP_bk_trig = 8'b00001111;
-                    count = 4'h4;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00001000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
+                    next_state = PING5;
+                end
+            end
+            TO4: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b0000;
+                    sampleP = 4'b0010;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
                     next_state = PING5;
                 end
             end
@@ -219,10 +370,23 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0100;
                     sampleP = 4'b0010;
-                    VP_fr_trig = 8'b00011111;
-                    VP_bk_trig = 8'b00001111;
-                    count = 4'h5;
+                    VP_fr_trig = 8'b00010000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b1;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PING5A;
+                end
+                else if (timeout_pulse)
+                begin
+                    sample =  4'b0100;
+                    sampleP = 4'b0010;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO5;
                 end
             end
             PING5A: 
@@ -231,9 +395,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0100;
                     sampleP = 4'b0000;
-                    VP_fr_trig = 8'b00011111;
-                    VP_bk_trig = 8'b00011111;
-                    count = 4'h5;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00010000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
+                    next_state = PONG6;
+                end
+            end
+            TO5: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b0100;
+                    sampleP = 4'b0000;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
                     next_state = PONG6;
                 end
             end
@@ -243,10 +423,23 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0100;
                     sampleP = 4'b0100;
-                    VP_fr_trig = 8'b00111111;
-                    VP_bk_trig = 8'b00011111;
-                    count = 4'h6;
+                    VP_fr_trig = 8'b00100000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b1;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PONG6A;
+                end
+                else if (timeout_pulse)
+                begin
+                    sample =  4'b0100;
+                    sampleP = 4'b0100;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO6;
                 end
             end
             PONG6A: 
@@ -255,9 +448,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0000;
                     sampleP = 4'b0100;
-                    VP_fr_trig = 8'b00111111;
-                    VP_bk_trig = 8'b00111111;
-                    count = 4'h6;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00100000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
+                    next_state = PING7;
+                end
+            end
+            TO6: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b0000;
+                    sampleP = 4'b0100;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
                     next_state = PING7;
                 end
             end
@@ -267,10 +476,23 @@ module app_1ch_behav(
                 begin
                     sample =  4'b1000;
                     sampleP = 4'b0100;
-                    VP_fr_trig = 8'b01111111;
-                    VP_bk_trig = 8'b00111111;
-                    count = 4'h7;
+                    VP_fr_trig = 8'b01000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b1;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PING7A;
+                end
+                else if (timeout_pulse)
+                begin
+                    sample =  4'b1000;
+                    sampleP = 4'b0100;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO7;
                 end
             end
             PING7A: 
@@ -279,9 +501,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b1000;
                     sampleP = 4'b0000;
-                    VP_fr_trig = 8'b01111111;
-                    VP_bk_trig = 8'b01111111;
-                    count = 4'h7;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b01000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
+                    next_state = PONG8;
+                end
+            end
+            TO7: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b1000;
+                    sampleP = 4'b0000;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b0;
                     next_state = PONG8;
                 end
             end
@@ -291,10 +529,23 @@ module app_1ch_behav(
                 begin
                     sample =  4'b1000;
                     sampleP = 4'b1000;
-                    VP_fr_trig = 8'b11111111;
-                    VP_bk_trig = 8'b01111111;
-                    count = 4'h8;
+                    VP_fr_trig = 8'b10000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b1;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
                     next_state = PONG8A;
+                end
+                else if (timeout_pulse)
+                begin
+                    sample =  4'b1000;
+                    sampleP = 4'b1000;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b0;
+                    timeout_reset = 1'b1;
+                    next_state = TO8;
                 end
             end
             PONG8A: 
@@ -303,9 +554,25 @@ module app_1ch_behav(
                 begin
                     sample =  4'b0000;
                     sampleP = 4'b1000;
-                    VP_fr_trig = 8'b11111110; // Need [0] OFF before PING1 
-                    VP_bk_trig = 8'b11111110;
-                    count = 4'h8;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b10000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b1; // reset count for next cycle
+                    timeout_reset = 1'b0;
+                    next_state = PING1; // restart
+                end
+            end
+            TO8: 
+            begin
+                if (!timeout_pulse)
+                begin
+                    sample =  4'b0000;
+                    sampleP = 4'b1000;
+                    VP_fr_trig = 8'b00000000;
+                    VP_bk_trig = 8'b00000000;
+                    count_up = 1'b0;
+                    count_reset = 1'b1; // reset count for next cycle
+                    timeout_reset = 1'b0;
                     next_state = PING1; // restart
                 end
             end

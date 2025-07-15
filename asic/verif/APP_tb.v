@@ -13,6 +13,8 @@ module APP_tb;
     // App 1ch signals
     reg vcomp = 0;
     reg rst_init = 0;
+    reg timeout_enable = 1;
+    reg [3:0] timeout_threshold = 10;
 
     // Instantiate analog memory core
     amem_core amem_core_tb (
@@ -26,7 +28,9 @@ module APP_tb;
     app_1ch_behav app_1ch_tb (
         .clk(clk),
         .rst_init(rst_init),
-        .vcomp(vcomp)
+        .vcomp(vcomp),
+        .timeout_enable(timeout_enable), // Enable timeout for testing
+        .timeout_threshold(timeout_threshold)
     );
 
     always #10 clk = ~clk; // 50MHz clock
