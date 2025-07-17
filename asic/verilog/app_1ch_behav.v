@@ -39,7 +39,7 @@ module app_1ch_behav(
     
     // internal connections
     wire [3:0] timeout_count;
-    wire timeout_pulse;
+    reg timeout_pulse;
     wire clk_half;
 	
     // states
