@@ -5,6 +5,7 @@ VERILOG_SOURCES+=   ../verilog/amem_core.v \
             ../verilog/app_1ch_behav.v \
             ../verilog/clock_div.v \
             ../verilog/oneshot.v \
+            ../verilog/oneshot_dynamic.v \
 		    APP_tb.v
 
 TOPLEVEL = APP_tb

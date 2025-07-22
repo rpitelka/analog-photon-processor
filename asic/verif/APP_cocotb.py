@@ -26,6 +26,7 @@ async def test_behav_basic(APP_tb):
     # Initial setup
     APP_tb.app_1ch_tb.vcomp.value = 0
     APP_tb.app_1ch_tb.rst_init.value = 0
+    APP_tb.app_1ch_tb.timeout_en.value = 0  # Disable timeout for this test
     
     # Wait after initial setup
     await Timer(110, 'ns')
@@ -94,7 +95,8 @@ async def test_behav_csv(APP_tb):
     # Initial setup
     APP_tb.app_1ch_tb.vcomp.value = 0
     APP_tb.app_1ch_tb.rst_init.value = 0
-    
+    APP_tb.app_1ch_tb.timeout_en.value = 0  # Disable timeout for this test
+
     # Wait after initial setup
     await Timer(110, 'ns')
     
@@ -114,8 +116,35 @@ async def test_behav_csv(APP_tb):
     await load_pulse(APP_tb, csv_path, "Ringing")
     await Timer(200, 'ns')
 
-
 @cocotb.test(skip=(dont_run_all and not env1("APP_T03")))
+async def test_behav_timeout(APP_tb):
+    """
+    Test behavioral model with timeout enabled.
+    """
+
+    # Initial setup
+    APP_tb.app_1ch_tb.vcomp.value = 0
+    APP_tb.app_1ch_tb.rst_init.value = 0
+    APP_tb.app_1ch_tb.timeout_en.value = 1  # Enable timeout
+    APP_tb.app_1ch_tb.timeout_length.value = 5  # Set timeout duration
+    
+    # Wait after initial setup
+    await Timer(110, 'ns')
+    
+    # Reset pulse
+    APP_tb.app_1ch_tb.rst_init.value = 1
+    await Timer(50, 'ns')
+    APP_tb.app_1ch_tb.rst_init.value = 0
+    await Timer(100, 'ns')
+
+    # Single TOT pulse test
+    APP_tb.app_1ch_tb.vcomp.value = 1
+    await Timer(10, 'ns')
+    APP_tb.app_1ch_tb.vcomp.value = 0
+    await Timer(500, 'ns')
+
+
+@cocotb.test(skip=(dont_run_all and not env1("APP_T04")))
 async def test_amem_basic(APP_tb):
     """
     Basic test for analog memory core.
