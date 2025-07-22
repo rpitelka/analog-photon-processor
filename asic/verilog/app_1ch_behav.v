@@ -105,6 +105,7 @@ module app_1ch_behav(
     assign timeout_trigger = timeout_trigger_reg;
 
     // Generate timeout pulse on vcomp falling edges
+    // Pulse starts one clock cycle after the trigger
     oneshot_dynamic timeout_gen(
         .clk(clk),
         .rst(rst_init),

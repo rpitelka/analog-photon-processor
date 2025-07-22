@@ -8,19 +8,18 @@ module oneshot_dynamic #(
   output wire              pulse_out
 );
 
-  // edge detect
-  reg trig_d;
-  always @(posedge clk) trig_d <= trig_in;
-  wire trig_posedge = trig_in & ~trig_d;
-
   // counter
   reg [WIDTH-1:0] cnt;
-  always @(posedge clk) begin
+
+  always @ (posedge trig_in or posedge rst) begin
     if (rst)
       cnt <= 0;
-    else if (trig_posedge)
+    else
       cnt <= pulse_width;
-    else if (cnt != 0)
+  end
+
+  always @(posedge clk) begin
+    if (cnt != 0)
       cnt <= cnt - 1;
     else
       cnt <= 0;

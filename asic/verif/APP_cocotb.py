@@ -141,7 +141,15 @@ async def test_behav_timeout(APP_tb):
     APP_tb.app_1ch_tb.vcomp.value = 1
     await Timer(10, 'ns')
     APP_tb.app_1ch_tb.vcomp.value = 0
-    await Timer(500, 'ns')
+    await Timer(200, 'ns')
+
+    # Multiple TOT pulses test
+    for i in range(3):
+        APP_tb.app_1ch_tb.vcomp.value = 1
+        await Timer(10, 'ns')
+        APP_tb.app_1ch_tb.vcomp.value = 0
+        await Timer(15, 'ns')
+    await Timer(200, 'ns')
 
 
 @cocotb.test(skip=(dont_run_all and not env1("APP_T04")))
