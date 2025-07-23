@@ -1,5 +1,7 @@
+// For behavioral model only
+
 module oneshot_dynamic #(
-  parameter integer WIDTH = 5      // width of your length bus
+  parameter integer WIDTH = 5
 )(
   input  wire              clk,
   input  wire              rst,
@@ -8,7 +10,6 @@ module oneshot_dynamic #(
   output wire              pulse_out
 );
 
-  // counter
   reg [WIDTH-1:0] cnt;
 
   always @ (posedge trig_in or posedge rst) begin

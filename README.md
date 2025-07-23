@@ -35,7 +35,8 @@ Setup assumes you are running on lxhiggs (CentOS7) which is required for the ASI
 2. For asic simulation: from the asic/verif directory, `./run.sh`. This will start cocotb in a virtual environment. To run with gui, `env GUI=1 ./run.sh`. By default, skips all tests; `env RUN_ALL=1 ./run.sh` to run all tests or `env APP_TXX=1 ./run.sh` to run a specific test. Current tests:
 * `APP_T01` Basic demonstration for analog behavorial model
 * `APP_T02` Load pulses from CSV into analog behavorial model
-* `APP_T03` Basic test for analog memory core
+* `APP_T03` Basic demonstration for analog behavorial model with timeout enabled
+* `APP_T04` Basic test for analog memory core
 #### Synthesis
 1. From the asic/syn directory, `./run_syn.sh`. This will create an output directory with the synthesized Verilog and timing files.
 
